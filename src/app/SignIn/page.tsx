@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function SignIn() {
     return(
 
@@ -86,7 +88,7 @@ export default function SignIn() {
 
                 <p className="text-center text-sm text-gray-500">
                     No account?
-                    <a className="underline" href="#">Sign up</a>
+                    <Link className="underline" href="/signUp">Sign up</Link>
                 </p>
 
                 <a className="underline" href="#">Forgot Password?</a>

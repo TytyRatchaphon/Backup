@@ -2,6 +2,7 @@ import * as React from 'react';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Link from 'next/link';
 
 export default function SignUp() {
 
@@ -18,7 +19,8 @@ export default function SignUp() {
 
                     <p className="mt-4 text-sm text-gray-500 text-left">
                         Already have an account?
-                        <a className="underline" href="#">Sign In</a>
+                        <Link className="underline" href="/signIn">Sign In</Link>
+                        {/* ยังต่อไม่ติด */}
                     </p>
 
                     <hr className="my-10"/>
@@ -73,8 +75,6 @@ export default function SignUp() {
                                 />
                             </div>
                         </div>
-
-                        
                     </form>
                     <hr className="my-10"/>
 

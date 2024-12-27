@@ -1,3 +1,5 @@
+
+import Link from 'next/link';
 import * as React from 'react';
 export default function Home() {
   return (
@@ -19,8 +21,8 @@ export default function Home() {
           </div>
           <div id="hs-navbar-example" className="hidden hs-collapse overflow-hidden transition-all duration-300 basis-full grow sm:block" aria-labelledby="hs-navbar-example-collapse">
             <div className="flex flex-col gap-5 mt-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:ps-5">
-              <a style={{color: '#3EBE71',fontWeight: 'bold'}} className="font-medium focus:outline-none" href="#" aria-current="page">Register</a>
-              <a style={{fontWeight: 'bold'}} className="font-medium text-gray-600 hover:text-black-400 focus:outline-none focus:text-gray-400" href="#">Login</a>
+              <Link style={{color: '#3EBE71',fontWeight: 'bold'}} className="font-medium focus:outline-none" href="/signUp" aria-current="page">Register</Link>
+              <Link style={{fontWeight: 'bold'}} className="font-medium text-gray-600 hover:text-black-400 focus:outline-none focus:text-gray-400" href="/signIn">Sign In</Link>
             </div>
           </div>
         </nav>
@@ -99,7 +101,7 @@ export default function Home() {
       <div className='h-[770px] grid justify-center items-center py-20'>
         <div className='text-[#3EBE71] text-center font-bold text-[40px] h-0 mb-10'>Best Seller</div>
         <div className='relative grid grid-cols-2 justify-center items-center md:justify-center md:grid-cols-4 gap-10 mt-10'>
-          <a href="#">
+          <Link href="/productDetail">
             <div className="w-[300px] overflow-hidden rounded-lg shadow transition hover:shadow-lg border border-gray-200">
               <div style={{marginTop: '10px', marginLeft: '10px', marginRight: '10px'}}>
                 <div className='h-[250px] w-full object-cover flex justify-center items-center bg-white border border-gray-100 rounded-lg'>
@@ -114,8 +116,8 @@ export default function Home() {
                 </div>
                   <button className='h-9 rounded-2xl bg-[#3EBE71] text-white font-bold'>Add to Cart</button>
                 </div>
-              </div>
-            </a>
+            </div>
+          </Link>
         </div>
       </div>
 

@@ -63,5 +63,7 @@ export default {
   plugins: [
     require('preline/plugin'),
     require("tailwindcss-animate"),
+	require('@tailwindcss/forms')
 ],
+
 } satisfies Config;
