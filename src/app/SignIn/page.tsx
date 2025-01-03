@@ -88,7 +88,7 @@ export default function SignIn() {
 
                 <p className="text-center text-sm text-gray-500">
                     No account?
-                    <Link className="underline" href="/signUp">Sign up</Link>
+                    <Link className="underline" href="/SignUp">Sign up</Link>
                 </p>
 
                 <a className="underline" href="#">Forgot Password?</a>
