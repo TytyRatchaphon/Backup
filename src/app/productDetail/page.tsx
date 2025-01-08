@@ -67,11 +67,10 @@ export default function ProductDetail() {
                                             </div>
                                         </form>
                                             <button className="w-full h-11 rounded-lg items-end bg-green-500 text-white font-bold hover:bg-white hover:text-green-500 hover:border-green-500 hover:border">Add to Cart</button>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        
+                        </div>
                     </div>
             </section>
         </div>
