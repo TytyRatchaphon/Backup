@@ -87,3 +87,12 @@ body {
 .radio-label {
   font-size: 36px; /* Adjust font size */
 }
+
+input::placeholder {
+  color: #ACACAC;
+}
+
+.defaultImg {
+  width: 160px;
+  height: 160px;
+}
