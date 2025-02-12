@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface FormErrors {
   email?: string;
@@ -10,10 +11,9 @@ interface FormErrors {
   confirmPassword?: string;
   firstName?: string;
   lastName?: string;
-  // gender?: string;
   phone?: string;
   address?: {
-    address?: string;
+    addressDescription?: string;
     subDistrict?: string;
     district?: string;
     province?: string;
@@ -33,10 +33,9 @@ export default function SignUp() {
     confirmPassword: "",
     firstName: "",
     lastName: "",
-    // gender: '',
     phone: "",
     address: {
-      address: "",
+      addressDescription: "",
       subDistrict: "",
       district: "",
       province: "",
@@ -47,9 +46,9 @@ export default function SignUp() {
       medicationAllergy: "",
     },
   });
-
+  const router = useRouter();
   const [errors, setErrors] = useState<FormErrors>({});
-
+  
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -169,13 +168,11 @@ export default function SignUp() {
     if (!formData.firstName) newErrors.firstName = "First name is required";
     if (!formData.lastName) newErrors.lastName = "Last name is required";
 
-    // if (!formData.gender) newErrors.gender = 'Gender is required';
     if (!formData.phone) newErrors.phone = "Phone number is required";
     else if (!/^\d{10,15}$/.test(formData.phone))
       newErrors.phone = "Phone number must be 10-15 digits";
 
-    if (!formData.address.address)
-      newErrors.address = { address: "Address is required" };
+
     if (!formData.address.subDistrict)
       newErrors.address = { subDistrict: "Sub District is required" };
     if (!formData.address.district)
@@ -218,6 +215,7 @@ export default function SignUp() {
 
     if (response.ok) {
       alert("Registration successful!");
+      router.push("/SignIn");
     } else {
       alert(`Error: ${result.error}`);
     }
@@ -438,7 +436,7 @@ export default function SignUp() {
                     <label className="block text-sm font-medium">Address</label>
                     <input
                       name="address.address"
-                      value={formData.address.address}
+                      value={formData.address.addressDescription}
                       onChange={handleChange}
                       placeholder="Address"
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -634,26 +632,6 @@ export default function SignUp() {
           </div>
         </div>
       </form>
-
-      {/* <form onSubmit={handleSubmit}>
-                <h2>Email and Password</h2>
-                <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" />
-                <input name="confirmEmail" value={formData.confirmEmail} onChange={handleChange} placeholder="Confirm Email" />
-                <input name="password" type="password" value={formData.password} onChange={handleChange} placeholder="Password" />
-                <input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirm Password" className='w-[400px] h-[35px]'/>
-                <h2>Personal Information</h2>
-                <input name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First Name" />
-                <input name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last Name" />
-                <input name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" />
-                <input name="address.subDistrict" value={formData.address.subDistrict} onChange={handleChange} placeholder="Sub District" />
-                <input name="address.district" value={formData.address.district} onChange={handleChange} placeholder="District" />
-                <input name="address.province" value={formData.address.province} onChange={handleChange} placeholder="Province" />
-                <input name="address.zipCode" value={formData.address.zipCode} onChange={handleChange} placeholder="Zip Code" />
-                <h2>Health Information</h2>
-                <input name="healthInformation.chronicDisease" value={formData.healthInformation.chronicDisease} onChange={handleChange} placeholder="Chronic Disease" />
-                <input name="healthInformation.medicationAllergy" value={formData.healthInformation.medicationAllergy} onChange={handleChange} placeholder="Medication Allergy" />
-                <button type="submit">Register</button>
-            </form> */}
     </div>
   );
 }

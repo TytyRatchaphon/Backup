@@ -9,7 +9,6 @@ export default function SignIn() {
         email: "",
         password: "",
     });
-
     const [error, setError] = useState("");
     const router = useRouter();
 
@@ -21,12 +20,14 @@ export default function SignIn() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
+    
         if (!formData.email || !formData.password) {
             setError("Please fill in all fields.");
             return;
         }
-
+    
+        console.log("Submitting login data:", formData);  //
+    
         try {
             const response = await fetch("http://localhost:3001/login", {
                 method: "POST",
@@ -35,22 +36,24 @@ export default function SignIn() {
                 },
                 body: JSON.stringify(formData),
             });
-
+    
             const result = await response.json();
-
+            console.log("Response Data:", result);  //
+    
             if (response.ok) {
                 alert("Login successful!");
-                // Optionally save token to localStorage
-                localStorage.setItem("token", result.token);
-                router.push("/dashboard");
+                localStorage.setItem("token", result.token); //
+    
+                //Redirect ไปที่ `customer/Home`
+                router.push("/customer/Home");  
             } else {
                 setError(result.error || "Invalid email or password.");
             }
         } catch (error) {
+            console.error("Login request failed:", error);  // 
             setError("Server error. Please try again later.");
         }
     };
-
     return(
 
         <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
