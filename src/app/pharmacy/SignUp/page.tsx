@@ -318,7 +318,7 @@ export default function SignUp() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="block text-sm font-medium" for="file_input">Certificate in Pharmacy</label>
+                                <label className="block text-sm font-medium" htmlFor="file_input">Certificate in Pharmacy</label>
                                 <input className="block w-full px-2 py-2 border border-[#6B7280] rounded-md text-sm text-[#ACACAC] focus:outline-none" id="file_input" type="file"/>
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function ProductDetail() {
+export default function CheckOut() {
     return (
         <div>
             <header
@@ -33,43 +33,38 @@ export default function ProductDetail() {
                     </div>
                 </nav>
             </header>
-
-            <section className="py-8 bg-white md:py-16 antialiased">
-                <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0">
-                    <div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
-                        <div className="shrink-0 max-w-md lg:max-w-lg mx-auto">
-
-                        {/* img */}
-                        <img className="w-full dark:hidden" src="" alt="" />
-                        </div>
-
-                        <div className="mt-6 sm:mt-8 lg:mt-0">
-
-                            {/* Product Name */}
-                            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">Product Name</h1>
-
-                            {/* Category */}
-                            <p>Category</p>
-
-
-                            <div className="mt-4 sm:items-center sm:gap-4 sm:flex">
-                                {/* Price */}
-                                <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl">฿1,249.99</p>
+            <section>
+                <h1 className="text-4xl font-extrabold text-[#160058] text-center pt-10">Check Out</h1>
+                <div>
+                    <div className="flex justify-center mt-10">
+                        <div className="w-[600px] h-auto">
+                            <div className="mt-3">
+                                <div className="flex items-center">
+                                    <div className="w-24 h-20 border border-[#3EBE71] bg-[#EAF8EE] rounded-lg ml-10">
+                                        <img src="" alt="" />
+                                    </div>
+                                    <div className="flex justify-between w-full ml-5">
+                                        <div className="">
+                                            <p className="font-medium">product name</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p>฿100.00</p>
+                                            <p>x 1</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-
-                            <div className="mt-6 pb-5 sm:gap-4 sm:items-center sm:flex sm:mt-8">
-                                <button className="bg-[#3EBE71] border border-[#3EBE71] p-1 px-5 text-white rounded-md font-semibold hover:bg-white hover:border hover:border-[#3EBE71] hover:text-[#3EBE71]">Add to Cart</button>
+                            <hr className="mt-5 border-t" />
+                            <div className="flex justify-center">
+                                <div className="w-[400px]">
+                                    <div className="flex justify-between w-full mt-2">
+                                        <h1 className="font-bold">Total</h1>
+                                        <h1>฿100.00</h1>
+                                    </div>
+                                    <h1 className="text-right">x 1</h1>
+                                    <button className="bg-[#3EBE71] w-full mt-2 py-2 text-white font-bold rounded-xl">Confirm Order</button>
+                                </div>
                             </div>
-
-                            <hr className="my-6 md:my-8 pt-5 border-gray-200 dark:border-gray-800" />
-
-
-                            {/* description */}
-                            <p className="mb-6 text-gray-500 dark:text-gray-400">
-                                Studio quality three mic array for crystal clear calls and voice
-                                recordings. Six-speaker sound system for a remarkably robust and
-                                high-quality audio experience. Up to 256GB of ultrafast SSD storage.
-                            </p>
                         </div>
                     </div>
                 </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 export default function SignIn() {
     const [formData, setFormData] = useState({
@@ -62,7 +62,7 @@ export default function SignIn() {
 
                 <p className="text-center text-sm text-gray-500 mt-2">Don't have any account?
                     <span> </span>
-                    <Link className="underline" href="/SignUp">Sign Up</Link>
+                    <Link className="underline" href="/customer/SignUp">Sign Up</Link>
                 </p>
 
                 <form onSubmit={handleSubmit}  className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8 border border-[#3EBE71] ">
