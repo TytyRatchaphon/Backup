@@ -165,14 +165,13 @@ export default function SignUp() {
         <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
           <div className="flex items-center justify-between w-full">
             <div>
-              <a
+              <div
                 style={{ color: "#3EBE71" }}
                 className="flex-none text-2xl font-bold focus:outline-none focus:opacity-80"
-                href="#"
                 aria-label="Brand"
               >
                 GoMed
-              </a>
+              </div>
             </div>
             <div>
               <Link

@@ -101,8 +101,6 @@ export default function SignIn() {
                         </div>
                     </div>
 
-                    <Link className="underline text-[12px] text-zinc-500" href="/forgotPassword">Forgot Password?</Link>
-
                     <button
                         type="submit"
                         className="w-full rounded-lg bg-[#3EBE71] hover:bg-white hover:text-[#3EBE71] hover:border-[#3EBE71] hover:border px-5 py-3 text-sm font-bold text-white"
