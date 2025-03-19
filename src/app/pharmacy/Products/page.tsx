@@ -6,7 +6,7 @@ export default function Products() {
             <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" className="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
             <span className="sr-only">Open sidebar</span>
             <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+            <path clipRule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
             </svg>
             </button>
 
@@ -40,92 +40,36 @@ export default function Products() {
                     </Link>
                 </ul>
             </div>
-        </aside>
+            </aside>
 
             <div className="p-4 sm:ml-64">
-                <div className="">
+                <div>
                     <h1 className="font-bold text-4xl text-center">Products</h1>
-
-                    <div>
-                        <div className="flex justify-end">
-                            <Link href="/pharmacy/AddProduct">
-                                <div className="flex p-2 rounded-full border border-black hover:bg-black hover:text-white">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                                    <p className="font-medium pl-2">Add Product</p>
+                </div>
+                <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+                    <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
+                        {/* product item */}
+                        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                            <div className="h-56 w-full border">
+                                <img className="block" src="" alt="" />
+                            </div>
+                            <div className="pt-6">
+                                <div className="mb-4 flex items-center justify-between gap-4">
+                                    <Link href='/pharmacy/ProductDetail' className="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white">
+                                        {/* product name */}
+                                    </Link>
                                 </div>
-                            </Link>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-5">
-                            <Link href="/pharmacy/ProductDetail">
-                                <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
-                                    <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
-                                        <img src="/med2.png" alt="" className="defaultImg"/>
-                                    </div>
-                                    <div className="w-full h-[50px] mt-2 flex justify-between">
-                                        <div>
-                                            <p className="font-semibold">Product Name</p>
-                                            <p>00.00฿</p>
-                                        </div>
-                                    </div>
+                                <div className="flex items-center justify-between w-full">
+                                    <p className="text-2xl font-extrabold leading-tight text-gray-900">
+                                        {/* price */}
+                                    </p>
+                                <Link href='/pharmacy/ProductDetail'>
+                                    <button type="button" className="inline-flex rounded-lg bg-gray-700 px-5 py-2 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300">
+                                    Edit
+                                    </button>
+                                </Link>
                                 </div>
-                            </Link>
-
-                            <Link href="/pharmacy/ProductDetail">
-                                <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
-                                    <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
-                                        <img src="/med2.png" alt="" className="defaultImg"/>
-                                    </div>
-                                    <div className="w-full h-[50px] mt-2 flex justify-between">
-                                        <div>
-                                            <p className="font-semibold">Product Name</p>
-                                            <p>00.00฿</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-
-                            <Link href="/pharmacy/ProductDetail">
-                                <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
-                                    <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
-                                        <img src="/med2.png" alt="" className="defaultImg"/>
-                                    </div>
-                                    <div className="w-full h-[50px] mt-2 flex justify-between">
-                                        <div>
-                                            <p className="font-semibold">Product Name</p>
-                                            <p>00.00฿</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-
-                            <Link href="/pharmacy/ProductDetail">
-                                <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
-                                    <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
-                                        <img src="/med2.png" alt="" className="defaultImg"/>
-                                    </div>
-                                    <div className="w-full h-[50px] mt-2 flex justify-between">
-                                        <div>
-                                            <p className="font-semibold">Product Name</p>
-                                            <p>00.00฿</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-
-                            <Link href="/pharmacy/ProductDetail">
-                                <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
-                                    <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
-                                        <img src="/med2.png" alt="" className="defaultImg"/>
-                                    </div>
-                                    <div className="w-full h-[50px] mt-2 flex justify-between">
-                                        <div>
-                                            <p className="font-semibold">Product Name</p>
-                                            <p>00.00฿</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

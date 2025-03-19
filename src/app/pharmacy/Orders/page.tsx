@@ -19,11 +19,11 @@ const OrderInfoForm: React.FC<OrderInfo> = ({
   // Sample contacts data, you should replace this with actual data source
   const order: OrderInfo[] = [
     {
-        orderID: '0000000001',
-        price: '43',
-        paid: 'Yes',
-        address: 'RC7Q+Q46, Maha Sawat, Bang Kruai District, Nonthaburi 11130, Thailand',
-        status: 'Complete'
+        orderID: '',
+        price: '',
+        paid: '',
+        address: '',
+        status: ''
     }
   ];
 
