@@ -44,25 +44,40 @@ export default function Products() {
 
             <div className="p-4 sm:ml-64">
                 <div>
-                    <h1 className="font-bold text-4xl text-center">Products</h1>
+                    <h1 className="font-bold text-4xl text-center mb-3">Products</h1>
                 </div>
+                
                 <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+                    <div className="flex justify-end mb-4">
+                        <Link href="/pharmacy/AddProduct">
+                            <button type="button" className="inline-flex items-center rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-medium text-white border border-gray-800 hover:bg-white hover:border hover:border-black hover:text-black focus:outline-none focus:ring-4 focus:ring-blue-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add Product
+                            </button>
+                        </Link>
+                    </div>
+
                     <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
+
                         {/* product item */}
-                        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                            <div className="h-56 w-full border">
-                                <img className="block" src="" alt="" />
+                        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                            <div className="h-56 w-full border flex items-center justify-center">
+                                <img className="block w-full h-full object-contain"
+                                src=""/>
                             </div>
-                            <div className="pt-6">
+                            <div className="pt-6 flex flex-col h-40">
                                 <div className="mb-4 flex items-center justify-between gap-4">
-                                    <Link href='/pharmacy/ProductDetail' className="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white">
-                                        {/* product name */}
-                                    </Link>
+                                <Link href='/pharmacy/ProductDetail' className="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white">
+                                    {/* product name */}
+                                </Link>
                                 </div>
-                                <div className="flex items-center justify-between w-full">
-                                    <p className="text-2xl font-extrabold leading-tight text-gray-900">
-                                        {/* price */}
-                                    </p>
+                                <div className="mt-auto flex items-center justify-between w-full"> 
+                                <p className="text-2xl font-extrabold leading-tight text-gray-900">
+                                    {/* price */}
+                                </p>
                                 <Link href='/pharmacy/ProductDetail'>
                                     <button type="button" className="inline-flex rounded-lg bg-gray-700 px-5 py-2 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300">
                                     Edit
