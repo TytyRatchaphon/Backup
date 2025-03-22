@@ -1,6 +1,18 @@
+"use client"
 import Link from "next/link";
+import { useState } from "react";
 
 export default function ProductDetail() {
+    const [quantity, setQuantity] = useState(1);
+
+    const increaseQuantity = () => {
+        setQuantity(prev => prev + 1);
+    };
+
+    const decreaseQuantity = () => {
+        setQuantity(prev => prev > 1 ? prev - 1 : 1);
+    };
+
     return (
         <div>
             <header
@@ -60,7 +72,27 @@ export default function ProductDetail() {
                                 <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl">฿1,249.99</p>
                             </div>
 
-                            <div className="mt-6 pb-5 sm:gap-4 sm:items-center sm:flex sm:mt-8">
+                            <div className="mt-6 pb-5 flex flex-col items-start sm:mt-8">
+                                {/* Quantity Selector */}
+                                <div className="flex items-center mb-4">
+                                    <span className="mr-3 text-sm font-medium text-gray-700">Choose quantity:</span>
+                                    <div className="flex items-center border border-gray-300 rounded-md ml-5">
+                                        <button 
+                                            onClick={decreaseQuantity}
+                                            className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-l-md focus:outline-none"
+                                        >
+                                            -
+                                        </button>
+                                        <span className="px-4 py-1 text-center">{quantity}</span>
+                                        <button 
+                                            onClick={increaseQuantity}
+                                            className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-r-md focus:outline-none"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+                                
                                 <button className="bg-[#3EBE71] border border-[#3EBE71] p-1 px-5 text-white rounded-md font-semibold hover:bg-white hover:border hover:border-[#3EBE71] hover:text-[#3EBE71]">Add to Cart</button>
                             </div>
 

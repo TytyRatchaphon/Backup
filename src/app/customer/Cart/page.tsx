@@ -69,7 +69,9 @@ export default function Cart() {
                                         <h1>฿100.00</h1>
                                     </div>
                                     <h1 className="text-right">x 1</h1>
-                                    <button className="bg-[#3EBE71] w-full mt-2 py-2 text-white font-bold rounded-xl">Check Out</button>
+                                    <Link href='/customer/CheckOut'>
+                                        <button className="bg-[#3EBE71] w-full mt-2 py-2 text-white font-bold rounded-xl">Check Out</button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
