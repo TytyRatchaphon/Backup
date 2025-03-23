@@ -1,5 +1,4 @@
 "use client"
-
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -15,20 +14,69 @@ interface UserDetailsProps {
   province: string;
   zipCode: string;
   certificateLink: string;
-  status: string;
+  storeImage: string; // Added store image field
 }
+
+// API endpoint configuration
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
+
+// API service functions
+const apiService = {
+  // Function to get user details by ID
+  getUserDetails: async (userId: string): Promise<UserDetailsProps> => {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    return await response.json();
+  },
+  
+  // Function to accept user registration
+  acceptRegistration: async (userId: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/accept`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    return await response.json();
+  },
+  
+  // Function to decline user registration
+  declineRegistration: async (userId: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/decline`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    return await response.json();
+  },
+};
 
 const UserDetailsPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get('id');
-  
   const [userDetails, setUserDetails] = useState<UserDetailsProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'store' | 'certificate'>('store');
 
-  // Fetch user details from backend
+  // Fetch user details from backend API
   useEffect(() => {
     const fetchUserDetails = async () => {
       if (!userId) {
@@ -36,16 +84,11 @@ const UserDetailsPage: React.FC = () => {
         setLoading(false);
         return;
       }
-
       try {
         setLoading(true);
-        const response = await fetch(`/api/users/${userId}`);
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch user details');
-        }
-        
-        const data = await response.json();
+        // Get user details from API
+        const data = await apiService.getUserDetails(userId);
         setUserDetails(data);
       } catch (err) {
         console.error('Error fetching user details:', err);
@@ -64,18 +107,7 @@ const UserDetailsPage: React.FC = () => {
     
     try {
       setProcessing(true);
-      const response = await fetch(`/api/users/${userId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: 'accepted' }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to accept registration');
-      }
-      
+      await apiService.acceptRegistration(userId);
       alert('User registration has been accepted successfully');
       router.push('/admin/Home');
     } catch (err) {
@@ -96,18 +128,7 @@ const UserDetailsPage: React.FC = () => {
     
     try {
       setProcessing(true);
-      const response = await fetch(`/api/users/${userId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: 'declined' }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to decline registration');
-      }
-      
+      await apiService.declineRegistration(userId);
       alert('User registration has been declined');
       router.push('/admin/Home');
     } catch (err) {
@@ -171,14 +192,64 @@ const UserDetailsPage: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         )}
-        
+
         <div className="space-y-4">
-          <div className='w-full flex justify-center'>
-            <div className="w-[370px] h-[370px] border border-gray-300 object-cover">
+          {/* Image tabs for Store and Certificate */}
+          <div className="border-b border-gray-200">
+            <ul className="flex flex-wrap -mb-px text-sm font-medium text-center">
+              <li className="mr-2">
+                <button 
+                  onClick={() => setActiveTab('store')}
+                  className={`inline-block p-4 border-b-2 rounded-t-lg ${
+                    activeTab === 'store' 
+                      ? 'border-blue-600 text-blue-600' 
+                      : 'border-transparent hover:text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  Store Image
+                </button>
+              </li>
+              <li className="mr-2">
+                <button 
+                  onClick={() => setActiveTab('certificate')}
+                  className={`inline-block p-4 border-b-2 rounded-t-lg ${
+                    activeTab === 'certificate' 
+                      ? 'border-blue-600 text-blue-600' 
+                      : 'border-transparent hover:text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  Certificate
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Images Section */}
+          <div className="w-full flex justify-center">
+            {/* Store Image */}
+            <div className={`w-[370px] h-[370px] border border-gray-300 object-cover ${activeTab === 'store' ? 'block' : 'hidden'}`}>
+              {userDetails.storeImage ? (
+                <img
+                  src={userDetails.storeImage}
+                  alt="Pharmacy store preview"
+                  className="w-full h-full object-contain"
+                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                    e.currentTarget.src = "/placeholder-image.jpg"; // Fallback image
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  No store image available
+                </div>
+              )}
+            </div>
+
+            {/* Certificate Image */}
+            <div className={`w-[370px] h-[370px] border border-gray-300 object-cover ${activeTab === 'certificate' ? 'block' : 'hidden'}`}>
               {userDetails.certificateLink ? (
-                <img 
-                  src={userDetails.certificateLink} 
-                  alt="Pharmacy certificate preview" 
+                <img
+                  src={userDetails.certificateLink}
+                  alt="Pharmacy certificate preview"
                   className="w-full h-full object-contain"
                   onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                     e.currentTarget.src = "/placeholder-image.jpg"; // Fallback image
@@ -191,79 +262,71 @@ const UserDetailsPage: React.FC = () => {
               )}
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="text-gray-600">Pharmacy Store</div>
             <div className="text-end">{userDetails.pharmacyStore}</div>
-            
             <div className="text-gray-600">Email</div>
             <div className="text-end">{userDetails.email}</div>
-            
             <div className="text-gray-600">Name</div>
             <div className="text-end">{userDetails.name}</div>
-            
             <div className="text-gray-600">Address</div>
             <div className="text-end">{userDetails.address}</div>
-            
             <div className="text-gray-600">Sub-District</div>
             <div className="text-end">{userDetails.subDistrict}</div>
-            
             <div className="text-gray-600">District</div>
             <div className="text-end">{userDetails.district}</div>
-            
             <div className="text-gray-600">Province</div>
             <div className="text-end">{userDetails.province}</div>
-            
             <div className="text-gray-600">Zip Code</div>
             <div className="text-end">{userDetails.zipCode}</div>
+          </div>
+
+          {/* Links to view full images */}
+          <div className="mt-4 space-y-2">
+            {userDetails.storeImage && (
+              <div>
+                <a
+                  href={userDetails.storeImage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  View Full Store Image
+                </a>
+              </div>
+            )}
             
-            {userDetails.status && (
-              <>
-                <div className="text-gray-600">Status</div>
-                <div className="text-end">
-                  <span className={`px-2 py-1 rounded ${
-                    userDetails.status === 'accepted' ? 'bg-green-100 text-green-800' : 
-                    userDetails.status === 'declined' ? 'bg-red-100 text-red-800' : 
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {userDetails.status.charAt(0).toUpperCase() + userDetails.status.slice(1)}
-                  </span>
-                </div>
-              </>
+            {userDetails.certificateLink && (
+              <div>
+                <a
+                  href={userDetails.certificateLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  View Full Certificate
+                </a>
+              </div>
             )}
           </div>
-          
-          {userDetails.certificateLink && (
-            <div className="mt-4">
-              <a 
-                href={userDetails.certificateLink} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-blue-600 hover:underline"
-              >
-                View Full Certificate
-              </a>
-            </div>
-          )}
-          
-          {(!userDetails.status || userDetails.status === 'pending') && (
-            <div className="flex space-x-4 mt-6">
-              <button 
-                onClick={handleDecline} 
-                disabled={processing}
-                className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition disabled:opacity-50"
-              >
-                Decline
-              </button>
-              <button 
-                onClick={handleAccept} 
-                disabled={processing}
-                className="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition disabled:opacity-50"
-              >
-                Accept
-              </button>
-            </div>
-          )}
+
+          <div className="flex space-x-4 mt-6">
+            <button
+              onClick={handleDecline}
+              disabled={processing}
+              className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition disabled:opacity-50"
+            >
+              Decline
+            </button>
+            <button
+              onClick={handleAccept}
+              disabled={processing}
+              className="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition disabled:opacity-50"
+            >
+              Accept
+            </button>
+          </div>
         </div>
       </div>
     </div>

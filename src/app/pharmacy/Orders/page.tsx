@@ -13,6 +13,9 @@ interface OrderInfo {
 
 const OrderInfoForm: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [orders, setOrders] = useState<OrderInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Toggle sidebar function
   const toggleSidebar = () => {
@@ -39,30 +42,58 @@ const OrderInfoForm: React.FC = () => {
     };
   }, []);
   
-  // Sample contacts data, you should replace this with actual data source
-  const order: OrderInfo[] = [
-    {
-      orderID: '0000000001',
-      price: '74',
-      paid: 'Yes',
-      address: '123 ถนนสุขุมวิท ซอย 22 แขวงคลองตัน เขตคลองเตย กรุงเทพมหานคร 10110',
-      status: 'Pending'
-    },
-    {
-      orderID: '0000000002',
-      price: '105',
-      paid: 'No',
-      address: '789 ถนนเจริญนคร แขวงบางลำภูล่าง เขตคลองสาน กรุงเทพมหานคร 10600',
-      status: 'Delivery'
-    },
-    {
-      orderID: '0000000003',
-      price: '150',
-      paid: 'Yes',
-      address: '456 ถนนพระราม 9 แขวงห้วยขวาง เขตห้วยขวาง กรุงเทพมหานคร 10310',
-      status: 'Complete'
-    }
-  ];
+  // Fetch orders from backend API
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        // Replace with your actual API endpoint
+        const response = await fetch('/api/orders');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setOrders(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        setError('Failed to load orders. Please try again later.');
+        
+        // Fallback to sample data if in development environment
+        if (process.env.NODE_ENV === 'development') {
+          setOrders([
+            {
+              orderID: '0000000001',
+              price: '74',
+              paid: 'Yes',
+              address: '123 ถนนสุขุมวิท ซอย 22 แขวงคลองตัน เขตคลองเตย กรุงเทพมหานคร 10110',
+              status: 'Pending'
+            },
+            {
+              orderID: '0000000002',
+              price: '105',
+              paid: 'No',
+              address: '789 ถนนเจริญนคร แขวงบางลำภูล่าง เขตคลองสาน กรุงเทพมหานคร 10600',
+              status: 'Delivery'
+            },
+            {
+              orderID: '0000000003',
+              price: '150',
+              paid: 'Yes',
+              address: '456 ถนนพระราม 9 แขวงห้วยขวาง เขตห้วยขวาง กรุงเทพมหานคร 10310',
+              status: 'Complete'
+            }
+          ]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   // Function to determine status styles
   const getStatusStyles = (status: string) => {
@@ -143,40 +174,56 @@ const OrderInfoForm: React.FC = () => {
           <h1 className="font-bold text-4xl text-center">Orders</h1>
         </div>
         <div className='mt-2'>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="text-black bg-gray-200">
-                  <th className="p-3 text-left">Order ID</th>
-                  <th className="p-3 text-left">Price</th>
-                  <th className="p-3 text-left">Paid</th>
-                  <th className="p-3 text-left">Address</th>
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.map((order, index) => (
-                  <tr className='border-b hover:bg-gray-50' key={order.orderID}>
-                    <td className="p-3">{order.orderID}</td>
-                    <td className="p-3">{order.price} ฿</td>
-                    <td className={`p-3 ${order.paid === 'Yes' ? 'text-green-600' : 'text-red-600'}`}>
-                      {order.paid}
-                    </td>
-                    <td className="p-3 max-w-xs truncate" title={order.address}>{order.address}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-1 rounded-md font-medium ${getStatusStyles(order.status)}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="p-3 underline text-right text-blue-600">
-                      <Link href={`/pharmacy/OrderDetail?id=${order.orderID}`}>View</Link>
-                    </td>
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center p-4 text-red-500">
+              <p>{error}</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="text-black bg-gray-200">
+                    <th className="p-3 text-left">Order ID</th>
+                    <th className="p-3 text-left">Price</th>
+                    <th className="p-3 text-left">Paid</th>
+                    <th className="p-3 text-left">Address</th>
+                    <th className="p-3 text-left">Status</th>
+                    <th className="p-3 text-left"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {orders.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="text-center p-4">ไม่พบข้อมูลคำสั่งซื้อ</td>
+                    </tr>
+                  ) : (
+                    orders.map((order) => (
+                      <tr className='border-b hover:bg-gray-50' key={order.orderID}>
+                        <td className="p-3">{order.orderID}</td>
+                        <td className="p-3">{order.price} ฿</td>
+                        <td className={`p-3 ${order.paid === 'Yes' ? 'text-green-600' : 'text-red-600'}`}>
+                          {order.paid}
+                        </td>
+                        <td className="p-3 max-w-xs truncate" title={order.address}>{order.address}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-1 rounded-md font-medium ${getStatusStyles(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="p-3 underline text-right text-blue-600">
+                          <Link href={`/pharmacy/OrderDetail?id=${order.orderID}`}>View</Link>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
