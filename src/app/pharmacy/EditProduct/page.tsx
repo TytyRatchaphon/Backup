@@ -1,26 +1,6 @@
 "use client"
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import React from "react";
-
-interface MedicineFormData {
-    product_name: string;
-    description: string;
-    category_id: number;
-    pharmacy_id: number;
-    price: number;
-    stock: number;
-    expired_date: string;
-    fda: string;
-    status: string;
-    image: File | null;
-  }
-
-  type Category = {
-    id: number;
-    name: string;
-  };
 
 export default function EditProduct() {
     // State for sidebar visibility
@@ -31,27 +11,23 @@ export default function EditProduct() {
         setSidebarOpen(!sidebarOpen);
     };
 
-    const { id } = useParams();
-
     // State for image preview
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-
+    const [imagePreview, setImagePreview] = useState(null);
     
     // State for tracking if image was changed
     const [imageChanged, setImageChanged] = useState(false);
     
     // State for form fields - initialize with mock product data for editing
-    const [formData, setFormData] = useState<MedicineFormData>({
-        product_name: "",
-        description: "",
-        category_id: 1,
-        pharmacy_id: 1,
-        price: 0,
-        stock: 0,
-        expired_date: "",
-        fda: "",
+    const [formData, setFormData] = useState({
+        productName: "Sample Medicine",
+        description: "This is a sample medicine description with details about usage and benefits.",
+        category: "Pain Relief",
+        price: "299.99",
+        stock: 25,
+        expiredDate: "2026-12-31",
+        fda: "FDA12345TH",
         status: "Available",
-        image: null,
+        image: null
     });
     
     // State for validation errors
@@ -64,34 +40,101 @@ export default function EditProduct() {
     const today = new Date().toISOString().split('T')[0];
     
     // Load product data and image preview when component mounts
-    
+    useEffect(() => {
+        // This would typically be an API call to fetch product data
+        // For now, we'll simulate using the initial state and setting image preview
+        
+        // Simulate loading an image by setting a placeholder URL
+        setImagePreview("/api/placeholder/800/600");
+        
+        // In a real app, you would fetch product data like this:
+        // const fetchProductData = async () => {
+        //     try {
+        //         const response = await fetch(`/api/products/${productId}`);
+        //         const productData = await response.json();
+        //         setFormData(productData);
+        //         
+        //         if (productData.imageUrl) {
+        //             setImagePreview(productData.imageUrl);
+        //         }
+        //     } catch (error) {
+        //         console.error("Error fetching product data:", error);
+        //     }
+        // };
+        // 
+        // fetchProductData();
+    }, []);
     
     // Create function to update form data
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-      ) => {
+    const handleInputChange = (e) => {
         const { name, value, type } = e.target;
-      
-        if (type === "file") {
-          const target = e.target as HTMLInputElement;
-          const file = target.files?.[0];
-      
-          if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-            setFormData({ ...formData, image: file });
-            setImagePreview(URL.createObjectURL(file));
-            setImageChanged(true);
-          } else {
-            alert("Only JPG or PNG images allowed");
-          }
-          return;
-        }
-      
-        if (["price", "stock", "category_id", "pharmacy_id"].includes(name)) {
-          setFormData({ ...formData, [name]: parseFloat(value) });
+        
+        if (name === "stock") {
+            // Convert value to number
+            const stockValue = parseInt(value);
+            
+            // If value is NaN or less than 0, set to 0
+            if (isNaN(stockValue) || stockValue < 0) {
+                if (stockValue < 0) {
+                    alert("Stock cannot be less than 0");
+                }
+                setFormData({ ...formData, [name]: 0 });
+            } else {
+                setFormData({ ...formData, [name]: stockValue });
+            }
+        } else if (type === "file") {
+            const file = e.target.files[0];
+            
+            // Check if a file was selected
+            if (file) {
+                // Check if the file is a JPG or PNG
+                const fileType = file.type;
+                if (fileType === "image/jpeg" || fileType === "image/png") {
+                    setFormData({ ...formData, [name]: file });
+                    setImageChanged(true);
+                    
+                    // Create a URL for the image preview
+                    const previewURL = URL.createObjectURL(file);
+                    setImagePreview(previewURL);
+                    
+                    // Clear any previous errors for this field
+                    if (errors.image) {
+                        const newErrors = {...errors};
+                        delete newErrors.image;
+                        setErrors(newErrors);
+                    }
+                } else {
+                    // Set an error if the file is not a JPG or PNG
+                    alert("Only JPG and PNG images are allowed");
+                    setErrors({
+                        ...errors,
+                        image: "Only JPG and PNG images are allowed"
+                    });
+                    // Clear the file input
+                    e.target.value = "";
+                }
+            }
+        } else if (name === "expiredDate") {
+            // Check if the date is before today
+            if (value && new Date(value) < new Date(today)) {
+                alert("Expiration date cannot be earlier than today");
+                setErrors({
+                    ...errors,
+                    expiredDate: "Expiration date cannot be earlier than today"
+                });
+            } else {
+                // Clear error if date is valid
+                if (errors.expiredDate) {
+                    const newErrors = {...errors};
+                    delete newErrors.expiredDate;
+                    setErrors(newErrors);
+                }
+                setFormData({ ...formData, [name]: value });
+            }
         } else {
-          setFormData({ ...formData, [name]: value });
+            setFormData({ ...formData, [name]: value });
         }
-      };
+    };
     
     // Clean up the URL object when component unmounts or when image changes
     useEffect(() => {
@@ -108,71 +151,21 @@ export default function EditProduct() {
             setFormData({ ...formData, status: "Unavailable" });
         }
     }, [formData.stock]);
-
-    useEffect(() => {
-        const fetchMedicine = async () => {
-          try {
-            const res = await fetch(`http://localhost:3001/api/medicines/${id}`);
-            if (!res.ok) throw new Error("Failed to fetch medicine");
-            const data = await res.json();
-            
-            // แปลงชื่อ field ให้ตรงกับ state formData ถ้ามีไม่ตรง
-            setFormData({
-              product_name: data.product_name,
-              description: data.description,
-              category_id: data.category_id,
-              pharmacy_id: data.pharmacy_id,
-              price: data.price,
-              stock: data.stock,
-              expired_date: data.expired_date,
-              fda: data.fda,
-              status: data.status,
-              image: null, // ไม่โหลดไฟล์เดิมจริง ให้ preview อย่างเดียว
-            });
-      
-            // if (data.image) {
-            //   setImagePreview(`/uploads/${data.image}`); // ถ้าใช้ static path หรือ public folder
-            // }
-          } catch (error) {
-            console.error("Error fetching medicine:", error);
-          }
-        };
-      
-        if (id) {
-          fetchMedicine();
-        }
-      }, [id]);
-
-      const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
-
-      useEffect(() => {
-        const fetchCategories = async () => {
-          try {
-            const res = await fetch("http://localhost:3001/api/categories");
-            if (!res.ok) throw new Error("Failed to fetch categories");
-            const data = await res.json();
-            setCategories(data);
-          } catch (error) {
-            console.error("Error fetching categories:", error);
-          }
-        };
-      
-        fetchCategories();
-      }, []);
+    
     // Function to validate form data
     const validateForm = () => {
         const newErrors = {};
         
         // Check required fields
-        if (!formData.product_name.trim()) newErrors.product_name = "Product Name is required";
+        if (!formData.productName.trim()) newErrors.productName = "Product Name is required";
         if (!formData.description.trim()) newErrors.description = "Description is required";
-        if (!formData.category_id) newErrors.category_id = "Category is required";
+        if (!formData.category.trim()) newErrors.category = "Category is required";
         if (!formData.price) newErrors.price = "Price is required";
         if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
-        if (!formData.expired_date) newErrors.expiredDate = "Expiration date is required";
+        if (!formData.expiredDate) newErrors.expiredDate = "Expiration date is required";
         
         // Check if expiration date is before today
-        if (formData.expired_date && new Date(formData.expired_date) < new Date(today)) {
+        if (formData.expiredDate && new Date(formData.expiredDate) < new Date(today)) {
             newErrors.expiredDate = "Expiration date cannot be earlier than today";
         }
         
@@ -186,43 +179,57 @@ export default function EditProduct() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    const router = useRouter();
     
     // Function to handle form submission
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setIsSubmitted(true);
-      
-        if (!validateForm()) {
-          alert("Please correct the errors in the form before submitting.");
-          return;
+        
+        if (validateForm()) {
+            // Submit the form data to API or do something else
+            alert("Product updated successfully!");
+            console.log("Updated product data:", formData);
+            
+            // In a real app, you'd make an API call to update the product
+            // const updateProduct = async () => {
+            //     try {
+            //         // Create a FormData object for file uploads
+            //         const formDataObj = new FormData();
+            //         
+            //         // Add all form fields to the FormData
+            //         Object.keys(formData).forEach(key => {
+            //             if (key === 'image' && !imageChanged) {
+            //                 // Skip image if not changed
+            //                 return;
+            //             }
+            //             formDataObj.append(key, formData[key]);
+            //         });
+            //         
+            //         // Add a flag indicating whether image was changed
+            //         formDataObj.append('imageChanged', imageChanged);
+            //         
+            //         const response = await fetch(`/api/products/${productId}`, {
+            //             method: 'PUT',
+            //             body: formDataObj,
+            //         });
+            //         
+            //         if (response.ok) {
+            //             alert("Product updated successfully!");
+            //         } else {
+            //             throw new Error('Failed to update product');
+            //         }
+            //     } catch (error) {
+            //         console.error("Error updating product:", error);
+            //         alert("Failed to update product. Please try again.");
+            //     }
+            // };
+            // 
+            // updateProduct();
+        } else {
+            console.log("Form validation failed");
+            alert("Please correct the errors in the form before submitting.");
         }
-      
-        try {
-          const response = await fetch(`http://localhost:3001/api/medicines/${id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          });
-      
-          if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error || "Failed to update medicine");
-          }
-      
-          const updated = await response.json();
-          alert("Product updated successfully!");
-      
-          console.log("Updated data:", updated);
-          router.push("/pharmacy/Products");
-      
-        } catch (error) {
-          console.error("Error updating medicine:", error);
-          alert("Failed to update product. Please try again.");
-        }
-      };
+    };
     
     return (
         <div>
@@ -309,7 +316,7 @@ export default function EditProduct() {
                                         id="productName"
                                         name="productName"
                                         type="text"
-                                        value={formData.product_name}
+                                        value={formData.productName}
                                         onChange={handleInputChange}
                                         required
                                         className={`bg-gray-50 border ${errors.productName ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
@@ -343,23 +350,15 @@ export default function EditProduct() {
                                     <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900">
                                         Category <span className="text-red-500">*</span>
                                     </label>
-                                    <select
-                                        id="category_id"
-                                        name="category_id"
-                                        value={formData.category_id}
+                                    <input
+                                        id="category"
+                                        name="category"
+                                        type="text"
+                                        value={formData.category}
                                         onChange={handleInputChange}
                                         required
-                                        className={`bg-gray-50 border ${errors.category_id ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-                                        >
-                                        <option value="" disabled>
-                                            -- Select a category --
-                                        </option>
-                                        {categories.map((category) => (
-                                            <option key={category.id} value={category.id}>
-                                            {category.name}
-                                            </option>
-                                        ))}
-                                        </select>
+                                        className={`bg-gray-50 border ${errors.category ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                                    />
                                     {errors.category && (
                                         <p className="mt-1 text-sm text-red-500">{errors.category}</p>
                                     )}
@@ -417,7 +416,7 @@ export default function EditProduct() {
                                         id="expiredDate"
                                         name="expiredDate"
                                         type="date"
-                                        value={formData.expired_date}
+                                        value={formData.expiredDate}
                                         onChange={handleInputChange}
                                         min={today}
                                         required

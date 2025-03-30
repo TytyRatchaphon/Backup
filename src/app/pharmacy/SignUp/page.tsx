@@ -39,6 +39,8 @@ export default function SignUp() {
         zipCode: "",
       });
 
+    const [certificateFile, setCertificateFile] = useState<File | null>(null);
+    const [storeImageFile, setStoreImageFile] = useState<File | null>(null);
     const [errors, setErrors] = useState<FormErrors>({});
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -150,65 +152,64 @@ export default function SignUp() {
         }
       };
 
-  return (
-    <div className="min-h-screen">
-        <header
-        className="relative flex flex-wrap sm:justify-start sm:flex-nowrap w-full text-sm py-3"
-        style={{ backgroundColor: "#EAF8EE" }}
-      >
-        <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
-          <div className="flex items-center justify-between w-full">
-            <div>
-              <a
-                style={{ color: "#3EBE71" }}
-                className="flex-none text-2xl font-bold focus:outline-none focus:opacity-80"
-                href="#"
-                aria-label="Brand"
-              >
-                GoMed
-              </a>
-            </div>
-            <div>
-              <Link
-                style={{ fontWeight: "bold" }}
-                className="font-medium text-gray-600 hover:text-black-400 focus:outline-none focus:text-gray-400"
-                href="/SignIn"
-              >
-                Sign In
-              </Link>
-            </div>
-          </div>
-        </nav>
-        </header>
+    return (
+        <div className="min-h-screen">
+            <header
+                className="relative flex flex-wrap sm:justify-start sm:flex-nowrap w-full text-sm py-3"
+                style={{ backgroundColor: "#EAF8EE" }}
+            >
+                <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
+                    <div className="flex items-center justify-between w-full">
+                        <div>
+                            <div
+                                style={{ color: "#3EBE71" }}
+                                className="flex-none text-2xl font-bold focus:outline-none focus:opacity-80"
+                                aria-label="Brand"
+                            >
+                                GoMed
+                            </div>
+                        </div>
+                        <div>
+                            <Link
+                                style={{ fontWeight: "bold" }}
+                                className="font-medium text-gray-600 hover:text-black-400 focus:outline-none focus:text-gray-400"
+                                href="/SignIn"
+                            >
+                                Sign In
+                            </Link>
+                        </div>
+                    </div>
+                </nav>
+            </header>
 
-        <div
-            className="h-full"
-            style={{
-            backgroundColor: "#EAF8EE",
-            borderRadius: "0 0 100px 100px",
-            borderBottom: "1px solid #3EBE71",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            }}
-        >
-            <div className="flex justify-center gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl">
-                <div className="mt-5 md:mt-0 text-center">
-                    <div className="text-7xl font-semibold mt-5 mb-5">
-                        <h1 className="">Create Account</h1>
-                        <span>as a </span>
-                        <span className="text-[#3EBE71]">Pharmacy</span>
+            <div
+                className="h-full"
+                style={{
+                    backgroundColor: "#EAF8EE",
+                    borderRadius: "0 0 100px 100px",
+                    borderBottom: "1px solid #3EBE71",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                <div className="flex justify-center gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl">
+                    <div className="mt-5 md:mt-0 text-center">
+                        <div className="text-7xl font-semibold mt-5 mb-5">
+                            <h1 className="">Create Account</h1>
+                            <span>as a </span>
+                            <span className="text-[#3EBE71]">Pharmacy</span>
 
-                        <p className="text-xl font-medium text-gray-400 mt-4">
-                            Already have an account?{" "}
-                            <span className="underline text-blue-600">
-                            <a href="/SignIn">Sign In</a>
-                            </span>
-                        </p>
+                            <p className="text-xl font-medium text-gray-400 mt-4">
+                                Already have an account?{" "}
+                                <span className="underline text-blue-600">
+                                <a href="/SignIn">Sign In</a>
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
         <div className="min-h-screen p-4">
             <form onSubmit={handleSubmit}>

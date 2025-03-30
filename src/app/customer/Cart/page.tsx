@@ -1,55 +1,8 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
-type Pharmacy = {
-    ID: number;
-    Email: string;
-    Password: string;
-    FirstName: string;
-    LastName: string;
-    Phone: string;
-    Certificate: string;
-    StoreImg: string;
-    AddressDescription: string;
-    SubDistrict: string;
-    District: string;
-    Province: string;
-    ZipCode: string;
-    Contact: string;
-    Status: string;
-    Role: string;
-    Medicines: Medicine[] | null;
-};
-
-type Medicine = {
-    ID: number;
-    Name: string;
-    Price: number;
-    Description: string;
-    Quantity: number;
-    ExpiredDate: string;
-};
-
-
-
-export default function Home() {
-    const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
-
-
-    useEffect(() => {
-        fetch("http://localhost:3001/api/pharmacies")
-            .then((res) => res.json())
-            .then((data) => {
-                console.log("Fetched Pharmacies:", data);
-                setPharmacies(data);
-            })
-            .catch((error) => console.error("Error fetching pharmacies:", error));
-    }, []);
-
+export default function Cart() {
     return (
-        <div className="">
+        <div>
             <header
                 className="relative flex flex-wrap sm:justify-start sm:flex-nowrap w-full text-sm py-3"
                 style={{ backgroundColor: "#EAF8EE" }}
@@ -84,39 +37,47 @@ export default function Home() {
                 </nav>
             </header>
 
-            <div className="max-w-[85rem] w-full px-4 mx-auto">
-                <div className="flex justify-center items-center">
-                    <h1 className="text-3xl font-semibold mt-10 mb-10 text-[#3EBE71]">Pharmacy Near Me</h1>
-                </div>
-                <div className="max-w-full" style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'auto auto auto auto',
-                    gap: '5px',
-                    justifyItems: 'center'
-                }}>
-                    {pharmacies.map((pharmacy) => (
-                           <Link key={pharmacy.ID || Math.random()} href={`/customer/StoreDetail/${pharmacy.ID}`}>
-                            <div className="w-[250px] h-[290px]">
-                                <div className="h-[220px] border border-[#3EBE71] rounded-tr-2xl rounded-tl-2xl flex justify-center items-center">
-                                <img
-                                    src={"/store.png"}
-                                    alt={`${pharmacy.FirstName}`}
-                                    className="defaultImg"
-                                />
-                                </div>
-                                <div className="h-[70px] bg-[#3EBE71] rounded-br-2xl rounded-bl-2xl flex flex-col items-center px-5 font-medium text-white">
-                                    <p className="text-lg">
-                                        {pharmacy.FirstName}
-                                    </p>
-                                    <p className="text-sm">
-                                    </p>
+            <section>
+                <h1 className="text-4xl font-extrabold text-[#160058] text-center pt-10">My Shopping Cart</h1>
+                <div>
+                    <div className="flex justify-center mt-10">
+                        <div className="w-[600px] h-auto">
+                            <p className="font-bold text-[#3EBE71]">(Pharmacy Store)</p>
+                            <div className="mt-3">
+                                <div className="flex items-center">
+                                    <input id="default-checkbox" type="checkbox" value="" className="w-4 h-4 text-[#3EBE71] bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 "/>
+                                    <div className="w-24 h-20 border border-[#3EBE71] bg-[#EAF8EE] rounded-lg ml-10">
+                                        <img src="" alt="" />
+                                    </div>
+                                    <div className="flex justify-between w-full ml-5">
+                                        <div className="">
+                                            <p className="font-medium">product name</p>
+                                            <p className="underline text-[#3EBE71]">edit</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p>฿100.00</p>
+                                            <p>x 1</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </Link>
-                    ))} 
+                            <hr className="mt-5 border-t" />
+                            <div className="flex justify-center">
+                                <div className="w-[400px]">
+                                    <div className="flex justify-between w-full mt-2">
+                                        <h1 className="font-bold">Total</h1>
+                                        <h1>฿100.00</h1>
+                                    </div>
+                                    <h1 className="text-right">x 1</h1>
+                                    <Link href='/customer/CheckOut'>
+                                        <button className="bg-[#3EBE71] w-full mt-2 py-2 text-white font-bold rounded-xl">Check Out</button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
+            </section>
         </div>
     );
 }
