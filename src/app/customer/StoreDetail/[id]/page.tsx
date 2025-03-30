@@ -1,6 +1,62 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+
+type Pharmacy = {
+    ID: number;
+    Email: string;
+    Password: string;
+    FirstName: string;
+    LastName: string;
+    Phone: string;
+    Certificate: string;
+    StoreImg: string;
+    AddressDescription: string;
+    SubDistrict: string;
+    District: string;
+    Province: string;
+    ZipCode: string;
+    Contact: string;
+    Status: string;
+    Role: string;
+    Medicines: Medicine[] | null;
+};
+
+type Medicine = {
+    id: number;
+    product_name: string;
+    price: number;
+    description: string;
+    quantity: number;
+    expired_date: string;
+};
+
 
 export default function StoreDetail() {
+    const { id } = useParams();
+    const [pharmacy, setPharmacy] = useState<Pharmacy | null>(null);
+    const [medicines, setMedicines] = useState<Medicine[]>([]);
+
+    useEffect(() => {
+        if (!id) return;
+        // Fetch pharmacy data
+        fetch(`http://localhost:3001/api/pharmacies/${id}`)
+            .then((res) => res.json())
+            .then((data) => setPharmacy(data))
+            .catch((error) => console.error("Error fetching pharmacy:", error));
+
+        // Fetch medicines of this pharmacy
+        fetch(`http://localhost:3001/api/pharmacies/${id}/medicines`)
+            .then((res) => res.json())
+            .then((data) => setMedicines(data))
+            .catch((error) => console.error("Error fetching medicines:", error));
+
+    }, [id]);
+
+    if (!pharmacy) return <p className="text-center text-xl">Loading...</p>;
+
     return (
         <div>
             <header
@@ -46,7 +102,7 @@ export default function StoreDetail() {
                             {/* Store Details */}
                             <div className="flex-1 w-full lg:w-auto">
                             <div className="text-center lg:text-left">
-                                <h1 className="text-[#3EBE71] font-bold text-2xl lg:text-3xl">Drug Store Name</h1>
+                                <h1 className="text-[#3EBE71] font-bold text-2xl lg:text-3xl">{ pharmacy.FirstName }</h1>
                                 <p className="text-gray-600">km.</p>
                             </div>
 
@@ -80,7 +136,7 @@ export default function StoreDetail() {
                                     fill="none"></svg>
                                     <div className="ml-4">
                                         <p className="text-[#8B8B8B] text-sm text-center lg:text-left">
-                                        00, Lorem ipsum, dolor sit amet, consectetur adipiscing elit
+                                        {pharmacy.AddressDescription}, {pharmacy.District}, {pharmacy.Province}, {pharmacy.SubDistrict} 
                                         </p>
                                     </div>
                                 </div>
@@ -144,69 +200,36 @@ export default function StoreDetail() {
                 <div className="mt-5">
                     <div className="flex">
                         <h1 className="text-md font-medium">All Products</h1>
-                        <p className="ml-3 text-[#C7C3C3]">(2 items)</p>
+                        <p className="ml-3 text-[#C7C3C3]">({medicines.length} Products Available)</p>
                     </div>
-
+                    
                     <div className="flex mt-5 justify-start gap-5">
-                        <Link href="/customer/ProductDetail">
-                            <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
-                                <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
-                                    <img src="/med2.png" alt="" className="defaultImg"/>
-                                </div>
-                                <div className="w-full h-[50px] mt-2 flex justify-between">
-                                    <div>
-                                        <p className="font-semibold">Product Name</p>
-                                        <p>00.00฿</p>
+                        {medicines.length > 0 ? (
+                            medicines.map((medicine) => (
+                                <Link key={medicine.id} href={`/customer/ProductDetail/${medicine.id}`}>
+                                    <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
+                                        <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
+                                            <img src={"/med2.png"} alt={medicine.product_name} className="defaultImg" />
+                                        </div>
+                                        <div className="w-full h-[50px] mt-2 flex justify-between">
+                                            <div>
+                                                <p className="font-semibold">{medicine.product_name}</p>
+                                                <p>{medicine.price}฿</p>
+                                            </div>
+                                            <div className="flex justify-center items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-plus">
+                                                    <circle cx="12" cy="12" r="10" className="text-[#3EBE71]" />
+                                                    <path d="M8 12h8" className="text-[#3EBE71]" />
+                                                    <path d="M12 8v8" className="text-[#3EBE71]" />
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-center items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-circle-plus"><circle cx="12" cy="12" r="10" className="text-[#3EBE71]"/><path d="M8 12h8" className="text-[#3EBE71]"/><path d="M12 8v8" className="text-[#3EBE71]"/></svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link href="/customer/ProductDetail">
-                            <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
-                                <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
-                                    <img src="/med2.png" alt="" className="defaultImg"/>
-                                </div>
-                                <div className="w-full h-[50px] mt-2 flex justify-between">
-                                    <div>
-                                        <p className="font-semibold">Product Name</p>
-                                        <p>00.00฿</p>
-                                    </div>
-                                    <div className="flex justify-center items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-circle-plus"><circle cx="12" cy="12" r="10" className="text-[#3EBE71]"/><path d="M8 12h8" className="text-[#3EBE71]"/><path d="M12 8v8" className="text-[#3EBE71]"/></svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-
-                <div className="mt-5">
-                    <div className="flex">
-                        <h1 className="text-md font-medium">Category</h1>
-                        <p className="ml-3 text-[#C7C3C3]">(1 item)</p>
-                    </div>
-
-                    <div className="flex mt-5">
-                        <Link href="/customer/ProductDetail">
-                            <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
-                                <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
-                                    <img src="/med2.png" alt="" className="defaultImg"/>
-                                </div>
-                                <div className="w-full h-[50px] mt-2 flex justify-between">
-                                    <div>
-                                        <p className="font-semibold">Product Name</p>
-                                        <p>00.00฿</p>
-                                    </div>
-                                    <button className="flex justify-center items-center z-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-circle-plus"><circle cx="12" cy="12" r="10" className="text-[#3EBE71]"/><path d="M8 12h8" className="text-[#3EBE71]"/><path d="M12 8v8" className="text-[#3EBE71]"/></svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </Link>
+                                </Link>
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No medicines available</p>
+                        )}
                     </div>
                 </div>
             </div>

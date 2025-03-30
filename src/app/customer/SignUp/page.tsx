@@ -12,13 +12,11 @@ interface FormErrors {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  address?: {
-    addressDescription?: string;
-    subDistrict?: string;
-    district?: string;
-    province?: string;
-    zipCode?: string;
-  };
+  addressDescription?: string;
+  subDistrict?: string;
+  district?: string;
+  province?: string;
+  zipCode?: string;
   healthInformation?: {
     chronicDisease?: string;
     medicationAllergy?: string;
@@ -34,13 +32,11 @@ export default function SignUp() {
     firstName: "",
     lastName: "",
     phone: "",
-    address: {
-      addressDescription: "",
-      subDistrict: "",
-      district: "",
-      province: "",
-      zipCode: "",
-    },
+    addressDescription: "",
+    subDistrict: "",
+    district: "",
+    province: "",
+    zipCode: "",
     healthInformation: {
       chronicDisease: "",
       medicationAllergy: "",
@@ -49,33 +45,28 @@ export default function SignUp() {
   const router = useRouter();
   const [errors, setErrors] = useState<FormErrors>({});
   
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name.includes("address.")) {
-      const key = name.split(".")[1];
-      setFormData({
-        ...formData,
-        address: {
-          ...formData.address,
-          [key]: value,
-        },
-      });
-    } else if (name.includes("healthInformation.")) {
-      const key = name.split(".")[1];
-      setFormData({
-        ...formData,
-        healthInformation: {
-          ...formData.healthInformation,
-          [key]: value,
-        },
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-    setErrors({ ...errors, [name]: "" });
-  };
+
+    setFormData((prevData) => {
+        // ถ้าเป็นข้อมูลที่อยู่ใน `healthInformation`
+        if (name in prevData.healthInformation) {
+            return {
+                ...prevData,
+                healthInformation: {
+                    ...prevData.healthInformation,
+                    [name]: value
+                }
+            };
+        }
+
+        // กรณีทั่วไป
+        return {
+            ...prevData,
+            [name]: value
+        };
+    });
+};
 
   const addChronicDisease = () => {
     if (formData.healthInformation.chronicDisease.trim()) {
@@ -172,24 +163,12 @@ export default function SignUp() {
     else if (!/^\d{10,15}$/.test(formData.phone))
       newErrors.phone = "Phone number must be 10-15 digits";
 
+    if (!formData.addressDescription) newErrors.addressDescription = "Address is required" ;
+    if (!formData.subDistrict) newErrors.subDistrict = "Sub District is required" ;
+    if (!formData.district) newErrors.district = "District is required";
+    if (!formData.province) newErrors.province =  "Province is required";
+    if (!formData.zipCode) newErrors.zipCode =  "Zip Code is required",
 
-    if (!formData.address.subDistrict)
-      newErrors.address = { subDistrict: "Sub District is required" };
-    if (!formData.address.district)
-      newErrors.address = {
-        ...newErrors.address,
-        district: "District is required",
-      };
-    if (!formData.address.province)
-      newErrors.address = {
-        ...newErrors.address,
-        province: "Province is required",
-      };
-    if (!formData.address.zipCode)
-      newErrors.address = {
-        ...newErrors.address,
-        zipCode: "Zip Code is required",
-      };
 
     setErrors(newErrors);
 
@@ -203,7 +182,7 @@ export default function SignUp() {
       return;
     }
 
-    const response = await fetch("http://localhost:3001/register", {
+    const response = await fetch("http://localhost:3001/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -435,8 +414,8 @@ export default function SignUp() {
                     {/* Address Fields */}
                     <label className="block text-sm font-medium">Address</label>
                     <input
-                      name="address.address"
-                      value={formData.address.addressDescription}
+                      name="addressDescription"
+                      value={formData.addressDescription}
                       onChange={handleChange}
                       placeholder="Address"
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -451,8 +430,8 @@ export default function SignUp() {
                       Sub District
                     </label>
                     <input
-                      name="address.subDistrict"
-                      value={formData.address.subDistrict}
+                      name="subDistrict"
+                      value={formData.subDistrict}
                       onChange={handleChange}
                       placeholder="Sub District"
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -464,8 +443,8 @@ export default function SignUp() {
                       District
                     </label>
                     <input
-                      name="address.district"
-                      value={formData.address.district}
+                      name="district"
+                      value={formData.district}
                       onChange={handleChange}
                       placeholder="District"
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -480,8 +459,8 @@ export default function SignUp() {
                       Province
                     </label>
                     <input
-                      name="address.province"
-                      value={formData.address.province}
+                      name="province"
+                      value={formData.province}
                       onChange={handleChange}
                       placeholder="Province"
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -493,8 +472,8 @@ export default function SignUp() {
                       Zip Code
                     </label>
                     <input
-                      name="address.zipCode"
-                      value={formData.address.zipCode}
+                      name="zipCode"
+                      value={formData.zipCode}
                       onChange={handleChange}
                       placeholder="Zip Code"
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -528,9 +507,9 @@ export default function SignUp() {
                     </label>
                     <div className="flex gap-2">
                       <input
-                        name="chronicDiseaseInput"
+                        name="chronicDisease"
                         value={formData.healthInformation.chronicDisease}
-                        onChange={handleHealthInputChange}
+                        onChange={handleChange}
                         placeholder="Enter your Chronic Disease"
                         className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
@@ -577,9 +556,9 @@ export default function SignUp() {
                     </label>
                     <div className="flex gap-2">
                       <input
-                        name="medicationAllergyInput"
+                        name="medicationAllergy"
                         value={formData.healthInformation.medicationAllergy}
-                        onChange={handleHealthInputChange}
+                        onChange={handleChange}
                         placeholder="Enter your Medication Allergy"
                         className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />

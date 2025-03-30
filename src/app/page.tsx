@@ -49,7 +49,7 @@ export default function Home() {
           <div className="mt-4 md:mt-0">
             <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900">Sign Up as Pharmacy</h2>
             <p className="mb-6 font-light text-gray-500 md:text-lg">Flowbite helps you connect with friends and communities of people who share your interests. Connecting with your friends and family as well as discovering new ones is easy with features like Groups.</p>
-            <Link className='bg-blue-600 text-white font-semibold px-10 py-1 rounded-lg' href='#'>Sign Up</Link>
+            <Link className='bg-blue-600 text-white font-semibold px-10 py-1 rounded-lg' href='/pharmacy/SignUp'>Sign Up</Link>
           </div>
         </div>
       </section>

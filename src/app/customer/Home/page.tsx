@@ -1,9 +1,53 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+type Pharmacy = {
+    ID: number;
+    Email: string;
+    Password: string;
+    FirstName: string;
+    LastName: string;
+    Phone: string;
+    Certificate: string;
+    StoreImg: string;
+    AddressDescription: string;
+    SubDistrict: string;
+    District: string;
+    Province: string;
+    ZipCode: string;
+    Contact: string;
+    Status: string;
+    Role: string;
+    Medicines: Medicine[] | null;
+};
+
+type Medicine = {
+    ID: number;
+    Name: string;
+    Price: number;
+    Description: string;
+    Quantity: number;
+    ExpiredDate: string;
+};
+
 
 
 export default function Home() {
+    const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
+
+
+    useEffect(() => {
+        fetch("http://localhost:3001/api/pharmacies")
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("Fetched Pharmacies:", data);
+                setPharmacies(data);
+            })
+            .catch((error) => console.error("Error fetching pharmacies:", error));
+    }, []);
+
     return (
         <div className="">
             <header
@@ -47,17 +91,26 @@ export default function Home() {
                     gap: '5px',
                     justifyItems: 'center'
                 }}>
-                    <Link href="/customer/StoreDetail">
-                        <div className="w-[250px] h-[290px]">
-                            <div className="h-[220px] border border-[#3EBE71] rounded-tr-2xl rounded-tl-2xl flex justify-center items-center">
-                                <img src="/store.png" alt="" className="defaultImg"/>
+                    {pharmacies.map((pharmacy) => (
+                           <Link key={pharmacy.ID || Math.random()} href={`/customer/StoreDetail/${pharmacy.ID}`}>
+                            <div className="w-[250px] h-[290px]">
+                                <div className="h-[220px] border border-[#3EBE71] rounded-tr-2xl rounded-tl-2xl flex justify-center items-center">
+                                <img
+                                    src={"/store.png"}
+                                    alt={`${pharmacy.FirstName}`}
+                                    className="defaultImg"
+                                />
+                                </div>
+                                <div className="h-[70px] bg-[#3EBE71] rounded-br-2xl rounded-bl-2xl flex flex-col items-center px-5 font-medium text-white">
+                                    <p className="text-lg">
+                                        {pharmacy.FirstName}
+                                    </p>
+                                    <p className="text-sm">
+                                    </p>
+                                </div>
                             </div>
-                            <div className="h-[70px] bg-[#3EBE71] rounded-br-2xl rounded-bl-2xl flex items-center justify-between px-5 font-medium text-white">
-                                <p className="text-lg">Drug Store Name</p>
-                                <p className="text-sm">km.</p>
-                            </div>
-                        </div>
-                    </Link>
+                        </Link>
+                    ))} 
                 </div>
             </div>
             

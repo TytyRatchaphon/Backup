@@ -8,17 +8,17 @@ export default function SignIn() {
     const [formData, setFormData] = useState({
         email: "",
         password: "",
-    });
-    const [error, setError] = useState("");
-    const router = useRouter();
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      });
+      const [error, setError] = useState("");
+      const router = useRouter(); // สำหรับรีไดเร็กต์หลังจากล็อกอินสำเร็จ
+    
+      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-        setError(""); // Clear error when user types
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setError(""); // Clear error เมื่อผู้ใช้พิมพ์
+      };
+    
+      const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
     
         if (!formData.email || !formData.password) {
@@ -26,10 +26,8 @@ export default function SignIn() {
             return;
         }
     
-        console.log("Submitting login data:", formData);  //
-    
         try {
-            const response = await fetch("http://localhost:3001/login", {
+            const response = await fetch("http://localhost:3001/api/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -38,22 +36,29 @@ export default function SignIn() {
             });
     
             const result = await response.json();
-            console.log("Response Data:", result);  //
     
             if (response.ok) {
                 alert("Login successful!");
-                localStorage.setItem("token", result.token); //
-    
-                //Redirect ไปที่ `customer/Home`
-                router.push("/customer/Home");  
+
+                localStorage.setItem("user", JSON.stringify(result.user)); // <== store user/pharmacy info
+                localStorage.setItem("role", result.role);
+
+                // ตรวจสอบ role และทำการ redirect ไปยังหน้าเหมาะสม
+                if (result.role === "staff") {
+                    localStorage.setItem("pharmacy_id", result.pharmacy_id);
+                    router.push("/pharmacy/AddProduct"); // ถ้าเป็น staff
+                } else {
+                    router.push("/customer/Home"); // ถ้าเป็น user
+                }
             } else {
                 setError(result.error || "Invalid email or password.");
             }
         } catch (error) {
-            console.error("Login request failed:", error);  // 
+            console.error("Login request failed:", error);
             setError("Server error. Please try again later.");
         }
     };
+
     return(
 
         <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
