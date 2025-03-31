@@ -11,6 +11,7 @@ type Medicine = {
     description: string;
     quantity: number;
     expired_date: string;
+    pharmacy_id: number;
 };
 
 export default function ProductDetail() {
@@ -20,6 +21,19 @@ export default function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     
+    useEffect(() => {
+        if (!id) return;
+    
+        // Fetch Medicine by ID
+        fetch(`http://localhost:3001/api/medicines/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+            console.log("Medicine data:", data); // เพิ่ม log เพื่อตรวจสอบข้อมูล
+            setMedicine(data);
+        })
+        .catch((error) => console.error("Error fetching medicine:", error));
+    }, [id]);
+
     const [userId, setUserId] = useState<number>(() => {
         // ดึงข้อมูล user จาก localStorage
         const storedUser = localStorage.getItem("user");
@@ -76,70 +90,113 @@ export default function ProductDetail() {
     };
 
     const handleAddToCart = async () => {
-        console.log("Sending userId:", userId);
-        console.log("Add to Cart clicked");
-        console.log("All localStorage keys:", Object.keys(localStorage));
-        if (isAddingToCart) {
-            console.log("Already adding to cart");
+    console.log("Sending userId:", userId);
+    console.log("Add to Cart clicked");
+    console.log("All localStorage keys:", Object.keys(localStorage));
+    if (isAddingToCart) {
+        console.log("Already adding to cart");
+        return;
+    }
+    
+    setIsAddingToCart(true);
+    
+    try {
+        // ตรวจสอบว่ามี userId หรือไม่
+        if (!userId) {
+            alert("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงตะกร้า");
+            router.push('/SignIn');
             return;
         }
         
-        setIsAddingToCart(true);
+        // ตรวจสอบว่ามีข้อมูลยา
+        if (!medicine) {
+            alert("ไม่พบข้อมูลสินค้า กรุณาลองใหม่อีกครั้ง");
+            setIsAddingToCart(false);
+            return;
+        }
         
-        try {
-            // ตรวจสอบว่ามี userId หรือไม่
-            if (!userId) {
-                alert("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงตะกร้า");
-                router.push('/SignIn');
+        // ดึง pharmacy_id จากข้อมูลยา
+        const pharmacyId = medicine.pharmacy_id;
+        
+        // ตรวจสอบว่ามีค่า pharmacy_id
+        if (!pharmacyId) {
+            alert("ไม่พบข้อมูลร้านขายยา กรุณาลองใหม่อีกครั้ง");
+            setIsAddingToCart(false);
+            return;
+        }
+        
+        // ตรวจสอบตะกร้าปัจจุบันก่อนเพิ่มสินค้า
+        const cartResponse = await fetch(`http://localhost:3001/api/cart/${userId}`);
+        const cartData = await cartResponse.json();
+        
+        const medicineId = Number(id);
+        
+        // ตรวจสอบว่ามีสินค้าจากร้านอื่นในตะกร้าหรือไม่
+        if (cartData.success && cartData.cart && cartData.cart.CartItems && cartData.cart.CartItems.length > 0) {
+            const existingPharmacyId = cartData.cart.PharmacyID;
+            
+            console.log("Existing pharmacy ID:", existingPharmacyId);
+            console.log("Current medicine pharmacy ID:", pharmacyId);
+            
+            if (existingPharmacyId && existingPharmacyId !== pharmacyId) {
+                alert("ไม่สามารถเพิ่มสินค้าจากร้านที่แตกต่างกันได้ กรุณาซื้อสินค้าจากร้านเดียวกันเท่านั้น หรือล้างตะกร้าก่อนสั่งซื้อจากร้านใหม่");
+                setIsAddingToCart(false);
                 return;
             }
-            
-            const medicineId = Number(id);
-            // สมมติว่า pharmacyId เป็น 1 หรือมาจากข้อมูลของยา
-            const pharmacyId = 1; 
-            
-            const requestBody = {
-                userId: userId,
-                pharmacyId: pharmacyId,
-                medicineId: medicineId,
-                quantity: quantity
-            };
-            
-            console.log("Sending request:", requestBody);
-            
-            const response = await fetch("http://localhost:3001/api/cart", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(requestBody),
-            });
-            
-            // ตรวจสอบว่า response เป็น 2xx หรือไม่
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Server responded with ${response.status}: ${errorText}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                alert("เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว");
+        }
+        
+        const requestBody = {
+            userId: userId,
+            pharmacyId: pharmacyId, // ใช้ค่าจากข้อมูลยา
+            medicineId: medicineId,
+            quantity: quantity
+        };
+        
+        console.log("Sending request:", requestBody);
+        
+        const response = await fetch("http://localhost:3001/api/cart", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+        });
+        
+        // ตรวจสอบว่า response เป็น 2xx หรือไม่
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server responded with ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert("เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว");
+        } else {
+            // ตรวจสอบข้อความเฉพาะสำหรับกรณีร้านไม่ตรงกัน
+            if (data.message && data.message.includes("different pharmacy")) {
+                alert("ไม่สามารถเพิ่มสินค้าจากร้านที่แตกต่างกันได้ กรุณาซื้อสินค้าจากร้านเดียวกันเท่านั้น");
             } else {
                 alert("ไม่สามารถเพิ่มสินค้าลงตะกร้าได้: " + data.message);
             }
-        } catch (err) {
-            console.error("Error adding to cart:", err);
-            
-            if (err instanceof Error) {
-                alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " + err.message);
-            } else {
-                alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
-            }
-        } finally {
-            setIsAddingToCart(false);
         }
-    };
+    } catch (err) {
+        console.error("Error adding to cart:", err);
+        
+        if (err instanceof Error) {
+            // ตรวจสอบข้อความเฉพาะสำหรับกรณีร้านไม่ตรงกัน
+            if (err.message.includes("different pharmacy")) {
+                alert("ไม่สามารถเพิ่มสินค้าจากร้านที่แตกต่างกันได้ กรุณาซื้อสินค้าจากร้านเดียวกันเท่านั้น");
+            } else {
+                alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " + err.message);
+            }
+        } else {
+            alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
+        }
+    } finally {
+        setIsAddingToCart(false);
+    }
+};
 
     if (!medicine) return <p className="text-center text-xl">Loading...</p>;
     

@@ -72,7 +72,7 @@ export default function StoreDetail() {
         return 1;
       });
 
-    const addToCart = async (medicineId: number) => {
+      const addToCart = async (medicineId: number) => {
         if (isAddingToCart) return;
         
         setIsAddingToCart(true);
@@ -85,6 +85,21 @@ export default function StoreDetail() {
             return;
           }
           
+          // ตรวจสอบตะกร้าปัจจุบันก่อนเพิ่มสินค้า
+          const cartResponse = await fetch(`http://localhost:3001/api/cart/${userId}`);
+          const cartData = await cartResponse.json();
+          
+          // ตรวจสอบว่ามีสินค้าจากร้านอื่นในตะกร้าหรือไม่
+          if (cartData.success && cartData.cart && cartData.cart.CartItems && cartData.cart.CartItems.length > 0) {
+            const existingPharmacyId = cartData.cart.PharmacyID;
+            
+            if (existingPharmacyId && existingPharmacyId !== Number(id)) {
+              alert("ไม่สามารถเพิ่มสินค้าจากร้านที่แตกต่างกันได้ กรุณาซื้อสินค้าจากร้านเดียวกันเท่านั้น หรือล้างตะกร้าก่อนสั่งซื้อจากร้านใหม่");
+              setIsAddingToCart(false);
+              return;
+            }
+          }
+          
           const requestBody = {
             userId: userId,
             pharmacyId: Number(id),
@@ -92,7 +107,7 @@ export default function StoreDetail() {
             quantity: 1
           };
           
-          console.log("Sending request:", requestBody); // เพิ่ม log สำหรับตรวจสอบ
+          console.log("Sending request:", requestBody);
           
           const response = await fetch("http://localhost:3001/api/cart", {
             method: "POST",
@@ -102,7 +117,6 @@ export default function StoreDetail() {
             body: JSON.stringify(requestBody),
           });
           
-          // ตรวจสอบว่า response เป็น 2xx หรือไม่
           if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`Server responded with ${response.status}: ${errorText}`);
@@ -113,25 +127,30 @@ export default function StoreDetail() {
           if (data.success) {
             alert("เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว");
           } else {
-            alert("ไม่สามารถเพิ่มสินค้าลงตะกร้าได้: " + data.message);
-          }
-          } catch (err) {
-            console.error("Error adding to cart:");
-            
-            // วิธีที่ 1: ตรวจสอบว่า error เป็น Error object หรือไม่
-            if (err instanceof Error) {
-              alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " + err.message);
+            // ตรวจสอบข้อความเฉพาะสำหรับกรณีร้านไม่ตรงกัน
+            if (data.message && data.message.includes("different pharmacy")) {
+              alert("ไม่สามารถเพิ่มสินค้าจากร้านที่แตกต่างกันได้ กรุณาซื้อสินค้าจากร้านเดียวกันเท่านั้น");
             } else {
-              // กรณีที่ไม่ใช่ Error object
-              alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
+              alert("ไม่สามารถเพิ่มสินค้าลงตะกร้าได้: " + data.message);
             }
-            
-            // หรือวิธีที่ 2: ใช้ type assertion (แนะนำเฉพาะเมื่อคุณแน่ใจว่า error เป็น Error object)
-            // alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " + (err as Error).message);
-          } finally {
-            setIsAddingToCart(false);
-          };
-      };
+          }
+        } catch (err) {
+          console.error("Error adding to cart:", err);
+          
+          if (err instanceof Error) {
+            // ตรวจสอบข้อความเฉพาะสำหรับกรณีร้านไม่ตรงกัน
+            if (err.message.includes("different pharmacy")) {
+              alert("ไม่สามารถเพิ่มสินค้าจากร้านที่แตกต่างกันได้ กรุณาซื้อสินค้าจากร้านเดียวกันเท่านั้น");
+            } else {
+              alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " + err.message);
+            }
+          } else {
+            alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
+          }
+        } finally {
+          setIsAddingToCart(false);
+        }
+    };
 
     useEffect(() => {
         if (!id) return;

@@ -90,53 +90,51 @@ const [userId, setUserId] = useState<number>(() => {
   };
 
   // โหลดข้อมูลตะกร้า
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        setLoading(true);
-        
-        // ใส่ console.log เพื่อตรวจสอบ userId ที่ใช้
-        console.log("Fetching cart for userId:", userId);
-        
-        const response = await fetch(`http://localhost:3001/api/cart/${userId}`);
-        console.log("Cart API response status:", response.status);
-        
-        if (!response.ok) {
-          throw new Error(`Server responded with ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log("Full cart API response:", data);
-        
-        // ตรวจสอบโครงสร้างข้อมูลที่ได้รับ
-        if (data.success && data.cart) {
-          console.log("Cart data found:", data.cart);
-          setCart(data.cart);
-          
-          // ตรวจสอบ CartItems
-          if (data.cart.CartItems && Array.isArray(data.cart.CartItems)) {
-            console.log("CartItems found:", data.cart.CartItems);
-            setSelectedItems(data.cart.CartItems.map((item: { CartItemID: any; }) => item.CartItemID));
-          } else {
-            console.log("No CartItems found or not in expected format");
-            setSelectedItems([]);
-          }
-        } else {
-          console.log("Setting cart to null, API response format not as expected:", data);
-          setCart(null);
-        }
-      } catch (err) {
-        console.error("Error fetching cart:", err);
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("เกิดข้อผิดพลาดในการโหลดข้อมูลตะกร้า");
-        }
-      } finally {
-        setLoading(false);
+  const fetchCart = async () => {
+    try {
+      setLoading(true);
+      
+      console.log("Fetching cart for userId:", userId);
+      
+      const response = await fetch(`http://localhost:3001/api/cart/${userId}`);
+      console.log("Cart API response status:", response.status);
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
       }
-    };
+      
+      const data = await response.json();
+      console.log("Full cart API response:", data);
+      
+      if (data.success && data.cart) {
+        console.log("Cart data found:", data.cart);
+        setCart(data.cart);
+        
+        if (data.cart.CartItems && Array.isArray(data.cart.CartItems)) {
+          console.log("CartItems found:", data.cart.CartItems);
+          setSelectedItems(data.cart.CartItems.map((item: { CartItemID: any; }) => item.CartItemID));
+        } else {
+          console.log("No CartItems found or not in expected format");
+          setSelectedItems([]);
+        }
+      } else {
+        console.log("Setting cart to null, API response format not as expected:", data);
+        setCart(null);
+      }
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("เกิดข้อผิดพลาดในการโหลดข้อมูลตะกร้า");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   
+  // ใน useEffect เรียกใช้ fetchCart
+  useEffect(() => {
     if (userId) {
       fetchCart();
     } else {
@@ -184,6 +182,29 @@ const [userId, setUserId] = useState<number>(() => {
     }
   };
 
+  const clearCart = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/cart/clear/${userId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+  
+      const data = await response.json();
+      
+      if (data.success) {
+        alert("ล้างตะกร้าเรียบร้อยแล้ว");
+        fetchCart(); // โหลดข้อมูลตะกร้าใหม่
+      } else {
+        alert("ไม่สามารถล้างตะกร้าได้: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+      alert("เกิดข้อผิดพลาดในการล้างตะกร้า");
+    }
+  };
+
   // ลบสินค้าออกจากตะกร้า
   const removeCartItem = async (cartItemId: number) => {
     if (confirm("คุณต้องการลบสินค้านี้ออกจากตะกร้าหรือไม่?")) {
@@ -192,14 +213,10 @@ const [userId, setUserId] = useState<number>(() => {
           method: "DELETE",
         });
         
-        if (!response.ok) {
-          throw new Error(`Server responded with ${response.status}`);
-        }
-        
         const data = await response.json();
         
         if (data.success) {
-          // รีโหลดข้อมูลตะกร้า
+          // โหลดข้อมูลตะกร้าใหม่
           const cartResponse = await fetch(`http://localhost:3001/api/cart/${userId}`);
           const cartData: CartResponse = await cartResponse.json();
           
@@ -214,11 +231,7 @@ const [userId, setUserId] = useState<number>(() => {
           alert("ไม่สามารถลบสินค้าได้: " + data.message);
         }
       } catch (err) {
-        if (err instanceof Error) {
-          alert("เกิดข้อผิดพลาด: " + err.message);
-        } else {
-          alert("เกิดข้อผิดพลาดในการลบสินค้า");
-        }
+        alert("เกิดข้อผิดพลาดในการลบสินค้า");
       }
     }
   };
@@ -281,7 +294,7 @@ const [userId, setUserId] = useState<number>(() => {
         ) : !cart || !cart.CartItems || cart.CartItems.length === 0 ? (
           <div className="text-center mt-10">
             <p>ไม่มีสินค้าในตะกร้า</p>
-            <Link href="/customer/Stores">
+            <Link href="/customer/Home">
               <button className="bg-[#3EBE71] px-4 py-2 text-white font-bold rounded-xl mt-4">
                 เลือกซื้อสินค้าเพิ่มเติม
               </button>
@@ -339,7 +352,7 @@ const [userId, setUserId] = useState<number>(() => {
                     </div>
                   </div>
                 ))}
-                
+                  
                 <hr className="mt-5 border-t" />
                 <div className="flex justify-center">
                   <div className="w-[400px]">
@@ -363,7 +376,13 @@ const [userId, setUserId] = useState<number>(() => {
                       >
                         Check Out
                       </button>
-                    </Link>
+                      </Link>
+                      <button 
+                          onClick={clearCart}
+                          className="w-full mt-2 py-2 text-white font-bold rounded-xl bg-red-500 hover:bg-red-600"
+                        >
+                          ล้างตะกร้า
+                      </button>
                   </div>
                 </div>
               </div>
