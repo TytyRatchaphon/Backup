@@ -90,7 +90,7 @@ const UserInfoForm: React.FC = () => {
             </div>
             <div className="flex gap-8 text-white">
               <Link href="/SignIn" className="hover:text-gray-300 transition-colors">
-                Log Out
+                Log Out   
               </Link>
             </div>
           </div>

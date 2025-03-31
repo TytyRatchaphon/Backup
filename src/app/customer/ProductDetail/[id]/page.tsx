@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type Medicine = {
     id: number;
@@ -15,7 +15,47 @@ type Medicine = {
 
 export default function ProductDetail() {
     const { id } = useParams(); // รับค่า id ของยา
+    const router = useRouter();
     const [medicine, setMedicine] = useState<Medicine | null>(null);
+    const [quantity, setQuantity] = useState(1);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+    
+    const [userId, setUserId] = useState<number>(() => {
+        // ดึงข้อมูล user จาก localStorage
+        const storedUser = localStorage.getItem("user");
+        // ถ้ามีข้อมูล user ใน localStorage
+        if (storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
+            console.log("User data from localStorage:", user);
+            
+            // ใช้ ID จากข้อมูล user
+            // จากข้อมูลที่เห็น property ชื่อ "ID" (ตัวใหญ่) ไม่ใช่ "id" (ตัวเล็ก)
+            const userId = user.ID || 1;
+            console.log("Using user ID:", userId);
+            return userId;
+          } catch (error) {
+            console.error("Failed to parse user data from localStorage:", error);
+            return 1;
+          }
+        }
+        console.log("No user data in localStorage, using default ID: 1");
+        return 1;
+      });
+
+    // ดึงข้อมูล userId จาก localStorage
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const storedUserId = localStorage.getItem('userId');
+            if (storedUserId) {
+                setUserId(parseInt(storedUserId));
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        console.log("Stored userId:", localStorage.getItem('userId'));
+      }, []);
     
     useEffect(() => {
         if (!id) return;
@@ -27,7 +67,82 @@ export default function ProductDetail() {
         .catch((error) => console.error("Error fetching medicine:", error));
     }, [id]);
 
+    const increaseQuantity = () => {
+        setQuantity(prev => prev + 1);
+    };
+
+    const decreaseQuantity = () => {
+        setQuantity(prev => prev > 1 ? prev - 1 : 1);
+    };
+
+    const handleAddToCart = async () => {
+        console.log("Sending userId:", userId);
+        console.log("Add to Cart clicked");
+        console.log("All localStorage keys:", Object.keys(localStorage));
+        if (isAddingToCart) {
+            console.log("Already adding to cart");
+            return;
+        }
+        
+        setIsAddingToCart(true);
+        
+        try {
+            // ตรวจสอบว่ามี userId หรือไม่
+            if (!userId) {
+                alert("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงตะกร้า");
+                router.push('/SignIn');
+                return;
+            }
+            
+            const medicineId = Number(id);
+            // สมมติว่า pharmacyId เป็น 1 หรือมาจากข้อมูลของยา
+            const pharmacyId = 1; 
+            
+            const requestBody = {
+                userId: userId,
+                pharmacyId: pharmacyId,
+                medicineId: medicineId,
+                quantity: quantity
+            };
+            
+            console.log("Sending request:", requestBody);
+            
+            const response = await fetch("http://localhost:3001/api/cart", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestBody),
+            });
+            
+            // ตรวจสอบว่า response เป็น 2xx หรือไม่
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Server responded with ${response.status}: ${errorText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert("เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว");
+            } else {
+                alert("ไม่สามารถเพิ่มสินค้าลงตะกร้าได้: " + data.message);
+            }
+        } catch (err) {
+            console.error("Error adding to cart:", err);
+            
+            if (err instanceof Error) {
+                alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " + err.message);
+            } else {
+                alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
+            }
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
+
     if (!medicine) return <p className="text-center text-xl">Loading...</p>;
+    
     return (
         <div>
             <header
@@ -87,8 +202,34 @@ export default function ProductDetail() {
                                 <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl">{medicine.price}฿</p>
                             </div>
 
-                            <div className="mt-6 pb-5 sm:gap-4 sm:items-center sm:flex sm:mt-8">
-                                <button className="bg-[#3EBE71] border border-[#3EBE71] p-1 px-5 text-white rounded-md font-semibold hover:bg-white hover:border hover:border-[#3EBE71] hover:text-[#3EBE71]">Add to Cart</button>
+                            <div className="mt-6 pb-5 flex flex-col items-start sm:mt-8">
+                                {/* Quantity Selector */}
+                                <div className="flex items-center mb-4">
+                                    <span className="mr-3 text-sm font-medium text-gray-700">จำนวน:</span>
+                                    <div className="flex items-center border border-gray-300 rounded-md ml-5">
+                                        <button 
+                                            onClick={decreaseQuantity}
+                                            className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-l-md focus:outline-none"
+                                        >
+                                            -
+                                        </button>
+                                        <span className="px-4 py-1 text-center">{quantity}</span>
+                                        <button 
+                                            onClick={increaseQuantity}
+                                            className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-r-md focus:outline-none"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <button 
+                                    type="button"
+                                    onClick={() => handleAddToCart()}
+                                    className="bg-[#3EBE71] border border-[#3EBE71] p-1 px-5 text-white rounded-md font-semibold hover:bg-white hover:border hover:border-[#3EBE71] hover:text-[#3EBE71]"
+                                >
+                                    Add to Cart
+                                </button>
                             </div>
 
                             <hr className="my-6 md:my-8 pt-5 border-gray-200 dark:border-gray-800" />

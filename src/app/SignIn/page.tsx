@@ -42,12 +42,21 @@ export default function SignIn() {
 
                 localStorage.setItem("user", JSON.stringify(result.user)); // <== store user/pharmacy info
                 localStorage.setItem("role", result.role);
+                // เพิ่ม console.log ตรงนี้เพื่อตรวจสอบ user ID ที่เข้าสู่ระบบ
+                console.log("User logged in successfully:", result.user);
+                console.log("Logged in with user ID:", result.user.id); // หรือ result.user.user_id (ขึ้นอยู่กับโครงสร้างข้อมูล)
+                console.log("User role:", result.role);
 
                 // ตรวจสอบ role และทำการ redirect ไปยังหน้าเหมาะสม
                 if (result.role === "staff") {
                     localStorage.setItem("pharmacy_id", result.pharmacy_id);
-                    router.push("/pharmacy/Products"); // ถ้าเป็น staff
-                } else {
+                    router.push("/pharmacy/Products");
+                 } // ถ้าเป็น staff
+                else if(result.role === "admin"){
+                    router.push("/admin/Home");
+                }
+                else if(result.role === "user"){
+                    localStorage.setItem("user_id", result.user.ID);
                     router.push("/customer/Home"); // ถ้าเป็น user
                 }
             } else {

@@ -33,11 +33,105 @@ type Medicine = {
     expired_date: string;
 };
 
+type AddToCartRequest = {
+    userId: number;
+    pharmacyId: number;
+    medicineId: number;
+    quantity: number;
+  };
+
 
 export default function StoreDetail() {
     const { id } = useParams();
     const [pharmacy, setPharmacy] = useState<Pharmacy | null>(null);
     const [medicines, setMedicines] = useState<Medicine[]>([]);
+    
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [addedToCartMessage, setAddedToCartMessage] = useState("");
+
+    const [userId, setUserId] = useState<number>(() => {
+        // ดึงข้อมูล user จาก localStorage
+        const storedUser = localStorage.getItem("user");
+        // ถ้ามีข้อมูล user ใน localStorage
+        if (storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
+            console.log("User data from localStorage:", user);
+            
+            // ใช้ ID จากข้อมูล user
+            // จากข้อมูลที่เห็น property ชื่อ "ID" (ตัวใหญ่) ไม่ใช่ "id" (ตัวเล็ก)
+            const userId = user.ID || 1;
+            console.log("Using user ID:", userId);
+            return userId;
+          } catch (error) {
+            console.error("Failed to parse user data from localStorage:", error);
+            return 1;
+          }
+        }
+        console.log("No user data in localStorage, using default ID: 1");
+        return 1;
+      });
+
+    const addToCart = async (medicineId: number) => {
+        if (isAddingToCart) return;
+        
+        setIsAddingToCart(true);
+        
+        try {
+          // ตรวจสอบว่ามี userId หรือไม่
+          if (!userId) {
+            alert("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงตะกร้า");
+            // อาจเพิ่มการเปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+            return;
+          }
+          
+          const requestBody = {
+            userId: userId,
+            pharmacyId: Number(id),
+            medicineId: medicineId,
+            quantity: 1
+          };
+          
+          console.log("Sending request:", requestBody); // เพิ่ม log สำหรับตรวจสอบ
+          
+          const response = await fetch("http://localhost:3001/api/cart", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+          });
+          
+          // ตรวจสอบว่า response เป็น 2xx หรือไม่
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server responded with ${response.status}: ${errorText}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            alert("เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว");
+          } else {
+            alert("ไม่สามารถเพิ่มสินค้าลงตะกร้าได้: " + data.message);
+          }
+          } catch (err) {
+            console.error("Error adding to cart:");
+            
+            // วิธีที่ 1: ตรวจสอบว่า error เป็น Error object หรือไม่
+            if (err instanceof Error) {
+              alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " + err.message);
+            } else {
+              // กรณีที่ไม่ใช่ Error object
+              alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
+            }
+            
+            // หรือวิธีที่ 2: ใช้ type assertion (แนะนำเฉพาะเมื่อคุณแน่ใจว่า error เป็น Error object)
+            // alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า: " + (err as Error).message);
+          } finally {
+            setIsAddingToCart(false);
+          };
+      };
 
     useEffect(() => {
         if (!id) return;
@@ -209,26 +303,37 @@ export default function StoreDetail() {
                     <div className="flex mt-5 justify-start gap-5">
                         {medicines.length > 0 ? (
                             medicines.map((medicine) => (
-                                <Link key={medicine.id} href={`/customer/ProductDetail/${medicine.id}`}>
-                                    <div className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
+                                <div key={medicine.id} className="w-[240px] h-[300px] bg-white border rounded-2xl shadow-md grid justify-center items-center pt-2 pb-2">
+                                    {/* ส่วนนี้ยังคงเป็น Link ไปยังหน้ารายละเอียดสินค้า */}
+                                    <Link href={`/customer/ProductDetail/${medicine.id}`}>
                                         <div className="w-[220px] h-[220px] border rounded-2xl flex justify-center items-center">
                                             <img src={"/med2.png"} alt={medicine.product_name} className="defaultImg" />
                                         </div>
-                                        <div className="w-full h-[50px] mt-2 flex justify-between">
-                                            <div>
-                                                <p className="font-semibold">{medicine.product_name}</p>
-                                                <p>{medicine.price}฿</p>
-                                            </div>
-                                            <div className="flex justify-center items-center">
+                                    </Link>
+                                    <div className="w-full h-[50px] mt-2 flex justify-between">
+                                        <div>
+                                            <p className="font-semibold">{medicine.product_name}</p>
+                                            <p>{medicine.price}฿</p>
+                                        </div>
+                                        {/* ส่วนนี้แยกออกจาก Link โดยสิ้นเชิง */}
+                                        <div className="flex justify-center items-center">
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.preventDefault(); // ป้องกันการนำทาง
+                                                    addToCart(medicine.id);
+                                                }}
+                                                disabled={isAddingToCart}
+                                                className="focus:outline-none"
+                                            >
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-plus">
                                                     <circle cx="12" cy="12" r="10" className="text-[#3EBE71]" />
                                                     <path d="M8 12h8" className="text-[#3EBE71]" />
                                                     <path d="M12 8v8" className="text-[#3EBE71]" />
                                                 </svg>
-                                            </div>
+                                            </button>
                                         </div>
                                     </div>
-                                </Link>
+                                </div>
                             ))
                         ) : (
                             <p className="text-gray-500">No medicines available</p>
