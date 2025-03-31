@@ -88,6 +88,7 @@ const [userId, setUserId] = useState<number>(() => {
     
     return { totalPrice, totalItems };
   };
+  
 
   // โหลดข้อมูลตะกร้า
   const fetchCart = async () => {
@@ -378,10 +379,10 @@ const [userId, setUserId] = useState<number>(() => {
                       </button>
                       </Link>
                       <button 
-                          onClick={clearCart}
-                          className="w-full mt-2 py-2 text-white font-bold rounded-xl bg-red-500 hover:bg-red-600"
-                        >
-                          ล้างตะกร้า
+                        onClick={clearCart}
+                        className="w-full mt-2 py-2 text-white font-bold rounded-xl bg-red-500 hover:bg-red-600"
+                      >
+                        ล้างตะกร้า
                       </button>
                   </div>
                 </div>
